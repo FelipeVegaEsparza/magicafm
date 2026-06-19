@@ -309,74 +309,38 @@ class CoveredTemplate extends TemplateBase {
   async loadProgramsByDay() {
     const dm = getDataManager();
     const programs = await dm.loadPrograms();
+    const container = document.getElementById('programs-grid');
+    if (!container) return;
     if (!programs || !programs.length) {
-      this._toggleSection('day-nav', false);
+      container.innerHTML = '<p class="no-programs">No hay programas disponibles</p>';
       return;
     }
-    this._toggleSection('day-nav', true);
     for (const p of programs) {
       if (p.imageUrl) p.imageUrl = await dm.getImageUrl(p.imageUrl);
     }
-    this._programs = programs;
     const dayMap = { monday: 'Lunes', tuesday: 'Martes', wednesday: 'Miércoles',
       thursday: 'Jueves', friday: 'Viernes', saturday: 'Sábado', sunday: 'Domingo' };
-    this._programDayMap = {};
-    for (const p of programs) {
-      const days = p.weekDays || [];
-      for (const d of days) {
-        const esDay = dayMap[d.toLowerCase()] || d;
-        if (!this._programDayMap[esDay]) this._programDayMap[esDay] = [];
-        this._programDayMap[esDay].push(p);
-      }
-    }
-    const today = new Date().toLocaleDateString('es-ES', { weekday: 'long' });
-    const firstDay = Object.keys(this._programDayMap).find(d => d.toLowerCase() === today.toLowerCase()) || 'Lunes';
-    this._selectedDay = firstDay;
-    this._renderDayPrograms(firstDay);
-    this._setupDayNav();
-  }
-
-  _setupDayNav() {
-    const nav = document.getElementById('day-nav');
-    if (!nav) return;
-    nav.querySelectorAll('.day-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const dayName = { lunes: 'Lunes', martes: 'Martes', miercoles: 'Miércoles',
-          jueves: 'Jueves', viernes: 'Viernes', sabado: 'Sábado', domingo: 'Domingo' }[btn.dataset.day];
-        if (!dayName || dayName === this._selectedDay) return;
-        nav.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        this._selectedDay = dayName;
-        this._renderDayPrograms(dayName);
-      });
-    });
-    const dayKeys = { lunes: 'Lunes', martes: 'Martes', miercoles: 'Miércoles',
-      jueves: 'Jueves', viernes: 'Viernes', sabado: 'Sábado', domingo: 'Domingo' };
-    const activeKey = Object.keys(dayKeys).find(k => dayKeys[k] === this._selectedDay);
-    const activeBtn = nav.querySelector('[data-day="' + activeKey + '"]');
-    if (activeBtn) activeBtn.classList.add('active');
-  }
-
-  _renderDayPrograms(dayName) {
-    const container = document.getElementById('programs-list');
-    if (!container) return;
-    const dayPrograms = (this._programDayMap[dayName] || []).sort((a, b) =>
-      (a.startTime || '').localeCompare(b.startTime || ''));
-    if (!dayPrograms.length) {
-      container.innerHTML = '<p style="text-align:center;color:#9e9ea0;padding:40px 0;">No hay programación para este día</p>';
-      return;
-    }
-    container.innerHTML = dayPrograms.map(p => `
-      <div class="program-card">
-        ${p.imageUrl ? '<div class="program-card-img"><img src="' + p.imageUrl + '" alt="' + p.name + '" loading="lazy"></div>' : ''}
-        <div class="program-card-body">
-          <div class="program-card-time">${p.startTime || ''}${p.endTime ? ' - ' + p.endTime : ''}</div>
-          <div class="program-card-name">${p.name}</div>
-          ${p.description ? '<div class="program-card-desc">' + p.description + '</div>' : ''}
-          ${p.host ? '<div class="program-card-host"><i class="fas fa-user"></i> ' + p.host + '</div>' : ''}
+    container.innerHTML = programs.map(p => {
+      const days = (p.weekDays || []).map(d => dayMap[d.toLowerCase()] || d);
+      const tag = days[0] || '';
+      const time = [p.startTime, p.endTime].filter(Boolean).join(' - ');
+      return `
+        <div class="program-card">
+          <div class="program-card-image">
+            <img src="${p.imageUrl || '/assets/icons/icon-512x512.png'}" alt="${p.name}" loading="lazy">
+            <div class="program-card-overlay"></div>
+          </div>
+          <div class="program-card-content">
+            ${tag ? '<span class="program-card-tag">' + tag + '</span>' : ''}
+            <h3 class="program-card-title">${p.name}</h3>
+            ${p.description ? '<p class="program-card-description">' + p.description + '</p>' : ''}
+            <div class="program-card-footer">
+              <span class="program-card-time">${time || 'Horario no disponible'}</span>
+            </div>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   }
 
   // ---- PODCASTS ----
@@ -811,11 +775,52 @@ class CoveredTemplate extends TemplateBase {
       const shareBtn = e.target.closest('#share-btn');
       if (shareBtn) {
         e.preventDefault();
-        if (navigator.share) {
-          navigator.share({ url: window.location.href });
+        if (navigator.share && /Mobi|Android/i.test(navigator.userAgent)) {
+          navigator.share({ url: window.location.href, title: document.title }).catch(() => {});
         } else {
-          navigator.clipboard.writeText(window.location.href);
+          this.openShareModal();
         }
+        return;
+      }
+
+      const shareClose = e.target.closest('.share-modal-close, .share-modal-backdrop');
+      if (shareClose) {
+        this.closeShareModal();
+        return;
+      }
+
+      const copyBtn = e.target.closest('#share-copy-link');
+      if (copyBtn) {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(window.location.href).catch(() => {});
+        }
+        const orig = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<i class="fas fa-check"></i><span>Copiado</span>';
+        setTimeout(() => copyBtn.innerHTML = orig, 2000);
+        return;
+      }
+
+      const whatsappBtn = e.target.closest('#share-whatsapp');
+      if (whatsappBtn) {
+        window.open('https://wa.me/?text=' + encodeURIComponent(document.title + ' ' + window.location.href), '_blank');
+        return;
+      }
+
+      const facebookBtn = e.target.closest('#share-facebook');
+      if (facebookBtn) {
+        window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank');
+        return;
+      }
+
+      const twitterBtn = e.target.closest('#share-twitter');
+      if (twitterBtn) {
+        window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(document.title + ' ' + window.location.href), '_blank');
+        return;
+      }
+
+      const telegramBtn = e.target.closest('#share-telegram');
+      if (telegramBtn) {
+        window.open('https://t.me/share/url?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent(document.title), '_blank');
         return;
       }
 
@@ -883,6 +888,16 @@ class CoveredTemplate extends TemplateBase {
     if (modal) modal.classList.remove('active');
     const audio = document.getElementById('podcast-audio');
     if (audio && !audio.paused) audio.pause();
+  }
+
+  openShareModal() {
+    const modal = document.getElementById('share-modal');
+    if (modal) modal.classList.add('active');
+  }
+
+  closeShareModal() {
+    const modal = document.getElementById('share-modal');
+    if (modal) modal.classList.remove('active');
   }
 
   onCurrentSongLoaded(songData) {

@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#1a1a2e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <link rel="stylesheet" href="/templates/covered/assets/css/style.css?v=3">
+  <link rel="stylesheet" href="/templates/covered/assets/css/style.css?v=4">
   <link rel="stylesheet" href="/assets/css/loading-styles.css">
   <link rel="stylesheet" href="/assets/css/pwa-installer.css?v=3">
   <link rel="stylesheet" href="/assets/css/promotion-popup.css">
@@ -61,7 +61,7 @@
             <div class="hero-player-controls">
               <button class="live-btn" id="main-play-btn">
                 <i class="fas fa-play"></i>
-                <span>ESCUCHAR EN VIVO</span>
+                <span>Escuchar ahora</span>
               </button>
               <button class="share-btn-hero" id="share-btn" title="Compartir">
                 <i class="fas fa-share-alt"></i>
@@ -102,21 +102,18 @@
 
     <div class="section-separator"></div>
 
-    <section class="section full-section programs-week-section bg-white" data-aos="fade-up">
+    <!-- PROGRAMAS -->
+    <div class="main-programs pt-2 pb-2">
       <div class="container">
-        <h2 class="section-title">Programación</h2>
-        <div class="day-nav" id="day-nav">
-          <button class="day-btn" data-day="lunes">Lunes</button>
-          <button class="day-btn" data-day="martes">Martes</button>
-          <button class="day-btn" data-day="miercoles">Miércoles</button>
-          <button class="day-btn" data-day="jueves">Jueves</button>
-          <button class="day-btn" data-day="viernes">Viernes</button>
-          <button class="day-btn" data-day="sabado">Sábado</button>
-          <button class="day-btn" data-day="domingo">Domingo</button>
+        <div class="section-title text-center mb-2">
+          <h2 class="section-heading color-title m:fs-3 fw-800 uppercase">
+            <span class="section-name">Programas</span>
+          </h2>
         </div>
-        <div class="programs-list" id="programs-list"></div>
+        <div class="programs-grid" id="programs-grid"></div>
       </div>
-    </section>
+    </div>
+    <!-- / END PROGRAMAS -->
 
     <section class="section full-section polls-section bg-light" data-aos="fade-up">
       <div class="container">
@@ -212,6 +209,39 @@
         </div>
       </div>
     </section>
+
+    <!-- SHARE MODAL -->
+    <div id="share-modal" class="share-modal">
+      <div class="share-modal-backdrop"></div>
+      <div class="share-modal-content">
+        <button class="share-modal-close">&times;</button>
+        <h3>Compartir</h3>
+        <p>Comparte esta radio con tus amigos</p>
+        <div class="share-modal-networks">
+          <a class="share-network-btn share-whatsapp" id="share-whatsapp" target="_blank" rel="noopener">
+            <i class="fab fa-whatsapp"></i>
+            <span>WhatsApp</span>
+          </a>
+          <a class="share-network-btn share-facebook" id="share-facebook" target="_blank" rel="noopener">
+            <i class="fab fa-facebook-f"></i>
+            <span>Facebook</span>
+          </a>
+          <a class="share-network-btn share-twitter" id="share-twitter" target="_blank" rel="noopener">
+            <i class="fab fa-x-twitter"></i>
+            <span>X</span>
+          </a>
+          <a class="share-network-btn share-telegram" id="share-telegram" target="_blank" rel="noopener">
+            <i class="fab fa-telegram-plane"></i>
+            <span>Telegram</span>
+          </a>
+          <button class="share-network-btn share-copy" id="share-copy-link">
+            <i class="fas fa-link"></i>
+            <span>Copiar enlace</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- /SHARE MODAL -->
 
   </main>
 
