@@ -1191,7 +1191,7 @@ class PetroleoTemplate extends TemplateBase {
       try {
         const resp = await fetch('/config/config.json');
         const config = await resp.json();
-        const mailTo = config.contact_email || 'contacto@radio.cl';
+        const mailTo = config.contact_email || 'contacto@magicafm.cl';
 
         const mailBody = 'Nombre: ' + name + '%0D%0A' +
           'Email: ' + email + '%0D%0A' +
@@ -1230,8 +1230,6 @@ class PetroleoTemplate extends TemplateBase {
       const img = document.getElementById('contact-cover-img');
       const nameEl = document.getElementById('contact-radio-name');
       const descEl = document.getElementById('contact-radio-desc');
-      const emailDisplay = document.getElementById('contact-email-display');
-
       if (img && data.coverUrl) {
         const dm = getDataManager();
         img.src = await dm.getImageUrl(data.coverUrl);
@@ -1241,11 +1239,6 @@ class PetroleoTemplate extends TemplateBase {
       }
       if (nameEl) nameEl.textContent = data.projectName || data.name || 'Nuestra Radio';
       if (descEl) descEl.textContent = data.projectDescription || data.description || 'Estamos aquí para escucharte.';
-      if (emailDisplay) {
-        const resp = await fetch('/config/config.json');
-        const config = await resp.json();
-        emailDisplay.textContent = config.contact_email || 'contacto@radio.cl';
-      }
     } catch (err) {
       console.warn('PetroleoTemplate: Error populating contact cover:', err);
     }

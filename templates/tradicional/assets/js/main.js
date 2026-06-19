@@ -716,7 +716,7 @@ class TradicionalTemplate extends TemplateBase {
       try {
         const resp = await fetch('/config/config.json');
         const config = await resp.json();
-        const to = config.contact_email || 'contacto@radio.cl';
+        const to = config.contact_email || 'contacto@magicafm.cl';
         const bdy = 'Nombre: ' + name + '%0D%0AEmail: ' + email + '%0D%0AAsunto: ' + subject + '%0D%0AMensaje: ' + message;
         window.location.href = 'mailto:' + to + '?subject=' + encodeURIComponent('Contacto: ' + subject) + '&body=' + bdy;
         if (fb) { fb.className = 'contact-feedback success'; fb.textContent = 'Mensaje enviado'; fb.style.display = 'block'; }

@@ -898,7 +898,7 @@ class ModernoTemplate extends TemplateBase {
       try {
         const resp = await fetch('/config/config.json');
         const config = await resp.json();
-        const mailTo = config.contact_email || 'contacto@radio.cl';
+        const mailTo = config.contact_email || 'contacto@magicafm.cl';
         const mailBody = 'Nombre: ' + name + '%0D%0A' + 'Email: ' + email + '%0D%0AAsunto: ' + subject + '%0D%0A' + 'Mensaje: ' + message;
         window.location.href = 'mailto:' + mailTo + '?subject=' + encodeURIComponent('Contacto: ' + subject) + '&body=' + mailBody;
         if (feedback) { feedback.className = 'contact-feedback success'; feedback.textContent = 'Mensaje enviado'; feedback.style.display = 'block'; }
