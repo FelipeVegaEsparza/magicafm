@@ -20,6 +20,7 @@ class CoveredTemplate extends TemplateBase {
         trackArtwork: 'track-artwork',
         defaultArtwork: 'default-artwork',
         currentDate: 'current-date',
+        currentTrackContainer: 'current-track-container',
         sponsorsCarousel: 'sponsors-carousel',
         sponsorsGrid: 'sponsors-grid',
       }
@@ -231,7 +232,8 @@ class CoveredTemplate extends TemplateBase {
       this.loadGalleriesList(),
       this.loadAnnouncersGrid(),
       this.loadPolls(),
-      this.loadEventsTimeline()
+      this.loadEventsTimeline(),
+      this.loadCurrentTrack()
     ];
     await Promise.allSettled(critical);
     await Promise.allSettled(secondary);
@@ -320,9 +322,23 @@ class CoveredTemplate extends TemplateBase {
     }
     const dayMap = { monday: 'Lunes', tuesday: 'Martes', wednesday: 'Miércoles',
       thursday: 'Jueves', friday: 'Viernes', saturday: 'Sábado', sunday: 'Domingo' };
+    const dayOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
     container.innerHTML = programs.map(p => {
-      const days = (p.weekDays || []).map(d => dayMap[d.toLowerCase()] || d);
-      const tag = days[0] || '';
+      const weekDays = p.weekDays || [];
+      const indices = weekDays.map(d => dayOrder.indexOf(d.toLowerCase())).filter(i => i !== -1).sort((a, b) => a - b);
+      const groups = [];
+      let current = [];
+      for (const i of indices) {
+        if (current.length && i !== current[current.length - 1] + 1) {
+          groups.push(current);
+          current = [];
+        }
+        current.push(i);
+      }
+      if (current.length) groups.push(current);
+      const tag = groups.map(g =>
+        g.length === 1 ? dayMap[dayOrder[g[0]]] : `${dayMap[dayOrder[g[0]]]} a ${dayMap[dayOrder[g[g.length - 1]]]}`
+      ).join(' y ');
       const time = [p.startTime, p.endTime].filter(Boolean).join(' - ');
       return `
         <div class="program-card">
@@ -341,6 +357,54 @@ class CoveredTemplate extends TemplateBase {
         </div>
       `;
     }).join('');
+  }
+
+  // ---- CURRENT TRACK (SonicPanel) ----
+
+  async loadCurrentTrack() {
+    try {
+      const dm = getDataManager();
+      const song = await dm.loadCurrentSong();
+      if (!song || !song.title) {
+        this._toggleSection('current-track-container', false);
+        return;
+      }
+      this._toggleSection('current-track-container', true);
+      this.renderCurrentTrack(song);
+    } catch (error) {
+      console.warn('CoveredTemplate: Error loading current track:', error);
+      this._toggleSection('current-track-container', false);
+    }
+  }
+
+  renderCurrentTrack(song) {
+    const container = document.getElementById(this.domIds.currentTrackContainer);
+    if (!container) return;
+    const artUrl = song.art || '';
+    container.innerHTML = `
+      <div class="current-track-layout">
+        <div class="current-track-now">
+          <div class="current-track-card">
+            <div class="current-track-cover">
+              <img src="${artUrl || '/assets/icons/icon-512x512.png'}" alt="${song.title}" loading="lazy">
+            </div>
+            <div class="current-track-info">
+              <span class="current-track-label"><i class="fas fa-music"></i> Reproduciendo ahora</span>
+              <h3 class="current-track-title">${song.title}</h3>
+              <p class="current-track-artist">${song.artist || 'Artista desconocido'}</p>
+            </div>
+          </div>
+        </div>
+        <div class="current-track-history">
+          <h4 class="recent-tracks-heading">Últimos 10</h4>
+          <div class="recent-tracks-list">
+            ${song.history && song.history.length ? song.history.slice(0, 10).map(track => `
+              <div class="recent-track-item">${track.replace(/<br\s*\/?>/gi, '')}</div>
+            `).join('') : '<div class="recent-track-item">Sin historial</div>'}
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   // ---- PODCASTS ----
@@ -908,6 +972,9 @@ class CoveredTemplate extends TemplateBase {
     this._updateMiniPlayer(songData);
     if (this._tvMode === 'radio') {
       this.updateHeroPlayer(songData);
+    }
+    if (songData && songData.title) {
+      this.renderCurrentTrack(songData);
     }
   }
 

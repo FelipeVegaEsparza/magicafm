@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="/assets/css/notification-button.css">
   <link rel="stylesheet" href="/assets/css/video-player.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/mobile-player.css?v=4">
@@ -34,9 +34,18 @@
             <div class="header-logo">
               <img id="news-logo" src="" alt="Logo" style="display:none;">
             </div>
-            <div class="header-actions">
-              <div id="notification-button-container"></div>
-              <div class="social-links" id="social-links"></div>
+            <div class="header-right">
+              <div class="date-weather">
+                <span class="current-date" id="current-date"></span>
+                <div class="live-indicator">
+                  <span class="live-dot"></span>
+                  <span>EN VIVO</span>
+                </div>
+              </div>
+              <div class="header-actions">
+                <div id="notification-button-container"></div>
+                <div class="social-links" id="social-links"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -114,6 +123,18 @@
       </div>
     </div>
     <!-- / END PROGRAMAS -->
+
+    <!-- CURRENT TRACK SECTION -->
+    <section class="section full-section current-track-section" data-aos="fade-up">
+      <div class="container">
+        <div class="section-title text-center mb-2">
+          <h2 class="section-heading fw-800 uppercase">
+            <span class="section-name">Últimos Temas</span>
+          </h2>
+        </div>
+        <div id="current-track-container"></div>
+      </div>
+    </section>
 
     <section class="section full-section polls-section bg-light" data-aos="fade-up">
       <div class="container">
@@ -244,6 +265,12 @@
     <!-- /SHARE MODAL -->
 
   </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p><i class="fas fa-broadcast-tower"></i> Sitio creado por <a href="https://www.ipstream.cl" target="_blank" rel="noopener">www.ipstream.cl</a> - streaming de audio y video profesional</p>
+    </div>
+  </footer>
 
   <audio id="radio-audio" preload="none"></audio>
   <input type="range" id="volume-slider" min="0" max="100" value="50" style="display:none;">
