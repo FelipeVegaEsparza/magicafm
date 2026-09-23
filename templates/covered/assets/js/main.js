@@ -43,6 +43,7 @@ class CoveredTemplate extends TemplateBase {
     await super.init();
     console.log('CoveredTemplate: super.init completed');
     this._setupHeroVolume();
+    this._setupVUMeter();
     try {
       await this.checkTVAvailability();
       await this.loadAllContent();
@@ -1197,6 +1198,109 @@ class CoveredTemplate extends TemplateBase {
         slider.dispatchEvent(new Event('input', { bubbles: true }));
       });
     }
+  }
+
+  _setupVUMeter() {
+    const audio = document.getElementById('radio-audio');
+    const needle = document.getElementById('hero-vu-needle');
+    if (!audio || !needle) return;
+
+    this._vuAudio = audio;
+    this._vuNeedle = needle;
+    this._vuLevel = 0;
+    this._vuPlaying = false;
+    this._vuRAF = null;
+
+    audio.crossOrigin = 'anonymous';
+
+    document.addEventListener('pointerdown', () => {
+      this._ensureVUContext();
+      this._resumeVUContext();
+    }, { once: true });
+
+    audio.addEventListener('play', () => {
+      this._ensureVUContext();
+      this._resumeVUContext();
+      this._vuPlaying = true;
+      this._startVULoop();
+    });
+    audio.addEventListener('pause', () => { this._vuPlaying = false; });
+    audio.addEventListener('ended', () => { this._vuPlaying = false; });
+    audio.addEventListener('emptied', () => { this._vuPlaying = false; });
+  }
+
+  _ensureVUContext() {
+    if (this._vuCtx) return this._vuCtx;
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return null;
+    try {
+      const ctx = new AudioCtx();
+      const source = ctx.createMediaElementSource(this._vuAudio);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 256;
+      analyser.smoothingTimeConstant = 0.7;
+      source.connect(analyser);
+      analyser.connect(ctx.destination);
+      this._vuCtx = ctx;
+      this._vuAnalyser = analyser;
+      this._vuData = new Uint8Array(analyser.fftSize);
+    } catch (e) {
+      console.warn('CoveredTemplate: VU meter Web Audio unavailable:', e);
+      this._vuCtx = null;
+      this._vuAnalyser = null;
+    }
+    return this._vuCtx;
+  }
+
+  _resumeVUContext() {
+    const ctx = this._vuCtx;
+    if (ctx && ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+  }
+
+  _readVULevel() {
+    const analyser = this._vuAnalyser;
+    const data = this._vuData;
+    if (!analyser || !data) return this._simulateVULevel();
+    analyser.getByteTimeDomainData(data);
+    let sum = 0;
+    for (let i = 0; i < data.length; i++) {
+      const v = (data[i] - 128) / 128;
+      sum += v * v;
+    }
+    const rms = Math.sqrt(sum / data.length);
+    return Math.min(1, rms * 3.4);
+  }
+
+  _simulateVULevel() {
+    const t = Date.now() / 1000;
+    const base = 0.35 + 0.3 * Math.sin(t * 2.1) * Math.sin(t * 0.7);
+    return Math.max(0, Math.min(1, base + Math.random() * 0.25));
+  }
+
+  _startVULoop() {
+    if (this._vuRAF) return;
+    this._vuRAF = requestAnimationFrame(() => this._vuTick());
+  }
+
+  _vuTick() {
+    if (!this._vuNeedle) { this._vuRAF = null; return; }
+
+    const target = this._vuPlaying ? this._readVULevel() : 0;
+    const k = target > this._vuLevel ? 0.5 : 0.09;
+    this._vuLevel += (target - this._vuLevel) * k;
+
+    const angle = -48 + this._vuLevel * 96;
+    this._vuNeedle.style.transform = 'translateX(-50%) rotate(' + angle.toFixed(2) + 'deg)';
+
+    if (!this._vuPlaying && this._vuLevel < 0.01) {
+      this._vuLevel = 0;
+      this._vuNeedle.style.transform = 'translateX(-50%) rotate(-48deg)';
+      this._vuRAF = null;
+      return;
+    }
+    this._vuRAF = requestAnimationFrame(() => this._vuTick());
   }
 
   async _loadBarraGc() {
