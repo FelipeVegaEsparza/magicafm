@@ -294,6 +294,17 @@ export async function getEvents() {
   return fetchJSON(`${base}/events`, { cacheTTL: CACHE_TTL.default });
 }
 
+export async function getBarraGc() {
+  const base = await getApiBase();
+  const data = await fetchJSON(`${base}/barra-gc`, { cacheTTL: CACHE_TTL.news });
+  if (!Array.isArray(data)) return [];
+  return data
+    .slice()
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    .map(item => (typeof item === 'string' ? item : item.message))
+    .filter(Boolean);
+}
+
 export async function registerPwaInstall(deviceId) {
   const base = await getApiBase();
   const response = await fetchWithRetry(`${base}/pwa/register`, {

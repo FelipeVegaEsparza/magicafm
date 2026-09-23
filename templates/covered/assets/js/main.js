@@ -1,5 +1,6 @@
 import TemplateBase from '/assets/js/template-base.js';
 import { getDataManager } from '/assets/js/data-manager.js';
+import { escapeHtml } from '/assets/js/utils.js';
 
 class CoveredTemplate extends TemplateBase {
   constructor() {
@@ -44,6 +45,7 @@ class CoveredTemplate extends TemplateBase {
     try {
       await this.checkTVAvailability();
       await this.loadAllContent();
+      await this._loadBarraGc();
       this._populateAboutRadio();
       this.setupContactForm();
       this.setupCarousels();
@@ -1156,6 +1158,26 @@ class CoveredTemplate extends TemplateBase {
       if (descEl) descEl.textContent = data.projectDescription || data.description || 'Estamos aquí para escucharte.';
     } catch (e) {
       console.warn('CoveredTemplate: Error loading contact cover:', e);
+    }
+  }
+
+  async _loadBarraGc() {
+    const bar = document.getElementById('hero-ticker');
+    const content = document.getElementById('hero-ticker-content');
+    if (!bar || !content) return;
+
+    try {
+      const { getBarraGc } = await import('/assets/js/api.js');
+      const messages = await getBarraGc();
+      if (!messages.length) return;
+
+      const items = messages
+        .map(msg => `<span class="hero-ticker-item">${escapeHtml(msg)}</span>`)
+        .join('');
+      content.innerHTML = items + items;
+      bar.style.display = 'block';
+    } catch (e) {
+      console.warn('CoveredTemplate: Error loading barra-gc:', e);
     }
   }
 

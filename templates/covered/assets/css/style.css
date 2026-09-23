@@ -220,6 +220,47 @@ body {
 .player-stats-hero { display: flex; gap: 24px; font-size: 0.85rem; color: rgba(255,255,255,0.35); }
 .player-stats-hero i { margin-right: 6px; color: rgba(255,255,255,0.2); }
 
+/* ========== HERO TICKER (barra-gc) ========== */
+.hero-ticker {
+  position: relative;
+  z-index: 4;
+  width: 100%;
+  overflow: hidden;
+  background: rgba(0,0,0,0.72);
+  border-top: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 13px 0;
+}
+.hero-ticker-track { overflow: hidden; }
+.hero-ticker-content {
+  display: inline-flex;
+  white-space: nowrap;
+  will-change: transform;
+  animation: heroTickerScroll 30s linear infinite;
+}
+.hero-ticker-item {
+  position: relative;
+  display: inline-block;
+  margin-right: 56px;
+  color: rgba(255,255,255,0.85);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+.hero-ticker-item::after {
+  content: '•';
+  position: absolute;
+  right: -30px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #e94560;
+}
+@keyframes heroTickerScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 /* ========== VOLUME (hidden) ========== */
 .volume-control { display: none; }
 
@@ -1940,6 +1981,16 @@ body {
   .player-stats-hero {
     gap: 12px;
     font-size: 0.75rem;
+  }
+  .hero-ticker {
+    padding: 10px 0;
+  }
+  .hero-ticker-item {
+    font-size: 0.8rem;
+    margin-right: 40px;
+  }
+  .hero-ticker-item::after {
+    right: -22px;
   }
   .on-air-badge {
     font-size: 0.65rem;
