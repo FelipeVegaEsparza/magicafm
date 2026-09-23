@@ -232,7 +232,7 @@ body {
   -webkit-backdrop-filter: blur(6px);
   padding: 13px 0;
 }
-.hero-ticker-track { overflow: hidden; }
+.hero-ticker-track { display: flex; overflow: hidden; }
 .hero-ticker-content {
   display: inline-flex;
   white-space: nowrap;
