@@ -1291,12 +1291,12 @@ class CoveredTemplate extends TemplateBase {
     const k = target > this._vuLevel ? 0.5 : 0.09;
     this._vuLevel += (target - this._vuLevel) * k;
 
-    const angle = -48 + this._vuLevel * 96;
+    const angle = -38 + this._vuLevel * 76;
     this._vuNeedle.style.transform = 'translateX(-50%) rotate(' + angle.toFixed(2) + 'deg)';
 
     if (!this._vuPlaying && this._vuLevel < 0.01) {
       this._vuLevel = 0;
-      this._vuNeedle.style.transform = 'translateX(-50%) rotate(-48deg)';
+      this._vuNeedle.style.transform = 'translateX(-50%) rotate(-38deg)';
       this._vuRAF = null;
       return;
     }
