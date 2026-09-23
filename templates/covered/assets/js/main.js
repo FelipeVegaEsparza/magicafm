@@ -1171,11 +1171,21 @@ class CoveredTemplate extends TemplateBase {
       const messages = await getBarraGc();
       if (!messages.length) return;
 
-      const items = messages
+      const item = messages
         .map(msg => `<span class="hero-ticker-item">${escapeHtml(msg)}</span>`)
         .join('');
-      content.innerHTML = items + items;
+
       bar.style.display = 'block';
+      content.innerHTML = item;
+
+      requestAnimationFrame(() => {
+        const viewport = bar.clientWidth;
+        const groupWidth = content.scrollWidth;
+        const reps = groupWidth > 0 ? Math.max(1, Math.ceil(viewport / groupWidth) + 1) : 1;
+        const half = item.repeat(reps);
+        content.innerHTML = half + half;
+        content.style.animationDuration = Math.max(25, Math.round(content.scrollWidth / 90)) + 's';
+      });
     } catch (e) {
       console.warn('CoveredTemplate: Error loading barra-gc:', e);
     }
