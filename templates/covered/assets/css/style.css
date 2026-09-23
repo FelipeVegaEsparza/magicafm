@@ -232,7 +232,7 @@ body {
   -webkit-backdrop-filter: blur(6px);
   padding: 13px 0;
 }
-.hero-ticker-track { display: flex; overflow: hidden; }
+.hero-ticker-track { overflow: hidden; }
 .hero-ticker-content {
   display: inline-flex;
   white-space: nowrap;
@@ -1887,7 +1887,7 @@ body {
 @media (max-width: 900px) {
   .hero-player {
     min-height: auto;
-    padding: 30px 0;
+    padding: 30px 0 0;
   }
   .hero-player-inner {
     flex-direction: column;
