@@ -76,6 +76,14 @@
                 <i class="fas fa-share-alt"></i>
               </button>
             </div>
+            <div class="hero-volume" id="hero-volume">
+              <button class="hero-volume-btn" id="hero-volume-btn" type="button" aria-label="Silenciar transmisión">
+                <i class="fas fa-volume-high" id="hero-volume-icon"></i>
+              </button>
+              <input type="range" id="volume-slider" min="0" max="100" value="50" step="1"
+                     class="hero-volume-range" aria-label="Volumen de la transmisión">
+              <span class="hero-volume-value" id="hero-volume-value">50%</span>
+            </div>
             <div class="player-stats-hero">
               <span><i class="fas fa-signal"></i> <span id="bitrate">N/A</span> kbps</span>
             </div>
@@ -278,7 +286,6 @@
   </footer>
 
   <audio id="radio-audio" preload="none"></audio>
-  <input type="range" id="volume-slider" min="0" max="100" value="50" style="display:none;">
 
   <div class="loading-overlay" id="loading-overlay">
     <div class="loading-content">

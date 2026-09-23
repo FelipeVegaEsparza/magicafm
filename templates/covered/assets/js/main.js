@@ -42,6 +42,7 @@ class CoveredTemplate extends TemplateBase {
     console.log('CoveredTemplate: init started');
     await super.init();
     console.log('CoveredTemplate: super.init completed');
+    this._setupHeroVolume();
     try {
       await this.checkTVAvailability();
       await this.loadAllContent();
@@ -1158,6 +1159,43 @@ class CoveredTemplate extends TemplateBase {
       if (descEl) descEl.textContent = data.projectDescription || data.description || 'Estamos aquí para escucharte.';
     } catch (e) {
       console.warn('CoveredTemplate: Error loading contact cover:', e);
+    }
+  }
+
+  _setupHeroVolume() {
+    const slider = document.getElementById('volume-slider');
+    if (!slider) return;
+    const btn = document.getElementById('hero-volume-btn');
+    const icon = document.getElementById('hero-volume-icon');
+    const label = document.getElementById('hero-volume-value');
+
+    const render = (raw) => {
+      const value = Math.max(0, Math.min(100, parseInt(raw, 10) || 0));
+      slider.style.setProperty('--vol', value + '%');
+      if (label) label.textContent = value + '%';
+      if (icon) {
+        icon.className = value === 0
+          ? 'fas fa-volume-xmark'
+          : value < 50
+            ? 'fas fa-volume-low'
+            : 'fas fa-volume-high';
+      }
+    };
+
+    render(slider.value);
+    slider.addEventListener('input', () => render(slider.value));
+
+    if (btn) {
+      btn.addEventListener('click', () => {
+        const current = parseInt(slider.value, 10) || 0;
+        if (current > 0) {
+          this._lastVolume = current;
+          slider.value = 0;
+        } else {
+          slider.value = this._lastVolume || 50;
+        }
+        slider.dispatchEvent(new Event('input', { bubbles: true }));
+      });
     }
   }
 
